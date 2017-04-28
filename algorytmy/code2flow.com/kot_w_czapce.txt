@@ -1,0 +1,4 @@
+//dane:
+//kot w czapce wysokoœæ = 2.000.000
+//wysokoœæ ka¿dego kolejnego kota = wysokoœæ poprzedniego kota / 2,5
+//znaleŸæ sumê wysokoœci kotów do n-tego
