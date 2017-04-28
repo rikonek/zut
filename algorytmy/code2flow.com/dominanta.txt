@@ -1,0 +1,68 @@
+START;
+
+int n=100
+int tablica[n]
+int znalezione[n]=\{0\}
+int znalezione_ilosc=0
+int ilosc[n]=\{0\}
+int jest_w_znalezionych
+int dominanta_ilosc=0
+int dominanta_ilosc_wystapien=0
+
+for(int t=0;t<n;t++)
+{
+  jest_w_znalezionych=0
+
+  for(int z=0;z<=znalezione_ilosc;z++)
+  {
+    if(tablica[t]==znalezione[z])
+    {
+      jest_w_znalezionych=1
+      ilosc[z]++
+      break;
+    }
+  }
+  if(jest_w_znalezionych==0)
+  {
+    znalezione[znalezione_ilosc]=tablica[t]
+    ilosc[znalezione_ilosc]++
+    znalezione_ilosc++
+  }
+}
+for(int i=0;i<znalezione_ilosc;i++)
+{
+  if(i==0)
+  {
+    dominanta_ilosc=ilosc[i]
+    dominanta_ilosc_wystapien=1
+  }
+  else
+  {
+    if(dominanta_ilosc==ilosc[i])
+    {
+      dominanta_ilosc_wystapien++
+    }
+    elseif(dominanta_ilosc<ilosc[i])
+    {
+      dominanta_ilosc=ilosc[i]
+      dominanta_ilosc_wystapien=1
+    }
+  }
+}
+if(dominanta_ilosc_wystapien==znalezione_ilosc)
+{
+  "Brak dominanty";
+}
+else
+{
+  "Znaleziono dominant:" dominanta_ilosc_wystapien
+  "tj.:";
+  for(int i=0;i<znalezione_ilosc;i++)
+  {
+    if(dominanta_ilosc==ilosc[i])
+    {
+      znalezione\[i\]
+    }
+  }
+}
+STOP;
