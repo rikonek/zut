@@ -2,3 +2,19 @@
 //kot w czapce wysokoœæ = 2.000.000
 //wysokoœæ ka¿dego kolejnego kota = wysokoœæ poprzedniego kota / 2,5
 //znaleŸæ sumê wysokoœci kotów do n-tego
+
+START;
+
+int n=3; //iloœæ kotów
+int wysokosc_kota=2000000;
+int suma_wysokosci=0;
+
+for(int i=0;i<n;i++)
+{
+  suma_wysokosci=suma_wysokosci+wysokosc_kota
+  wysokosc_kota=wysokosc_kota/2,5
+}
+
+"Suma wysokoœci kotów wynosi" suma_wysokosci;
+
+STOP;
