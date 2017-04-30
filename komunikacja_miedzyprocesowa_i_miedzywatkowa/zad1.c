@@ -16,10 +16,74 @@
 // 6. Jezeli lista jest pusta, wowczas czytajace watki maja byc uspione.
 
 #include <stdio.h>
-#include <stdlib.h>
 
 typedef struct List
 {
     int value;
-    struct List* next;
+    struct List *next;
 } List;
+
+void push_back(List *head,int value) //wrzucam element na koniec listy
+{
+    if(head==NULL)
+    {
+        puts("jestem tutaj");
+        head=(List*)malloc(sizeof(List));
+        head->value=123;
+        head->next=NULL;
+    }
+    else
+    {
+        puts("Tu nie wchodze");
+        List *current = head;
+        while(current->next!=NULL)
+        {
+            current=current->next;
+        }
+        List *prepare=malloc(sizeof(List));
+        prepare->value=value;
+        prepare->next=NULL;
+        current->next=prepare;
+    }
+}
+
+int pop_front() //sciagam element z listy
+{
+
+}
+
+void print_list(List *head)
+{
+    puts("Drukuje liste");
+//    if(head==NULL) puts("Lista nie istenieje");
+    List *current = head;
+    while(current!=NULL)
+    {
+        printf("%d\n",current->value);
+        current=current->next;
+    }
+}
+
+int main()
+{
+    /*
+    List *wezel=malloc(sizeof(List));
+    if(wezel==NULL)
+    {
+        return 1;
+    }
+    wezel->value=NULL;
+    wezel->next=NULL;
+    */
+    List *wezel=NULL;
+
+/*
+    wezel->value=5;
+    wezel->next=NULL;
+*/
+
+    push_back(wezel,3);
+    print_list(wezel);
+
+    return 0;
+}
