@@ -1,0 +1,21 @@
+//algorytm sortowania
+//Wprowadzam testowe dane {3,7,2,1,4}
+
+START;
+
+int n=5
+int tablica\[n\]
+int tmp=0
+
+for(int i=0;i+1<=n;i++)
+{
+  if(tablica[i]>tablica[i+1])
+  {
+    tmp=tablica[i+1]
+    tablica[i+1]=tablica[i]
+    tablica[i]=tmp
+    i=0
+  }
+}
+
+STOP;
