@@ -1,0 +1,1 @@
+gcc -o plik_wynikowy plik_zrodlowy

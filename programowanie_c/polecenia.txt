@@ -1,0 +1,13 @@
+Kompilacja
+gcc -o plik_wynikowy plik_zrodlowy
+
+Sprawdzenie na jaką architekturę został skompilowany program
+file p1
+
+Kompilacja na wybraną architekturę
+~/embedded_C/buildroot-build/host/usr/bin/i586-buildroot-linux-uclibc-gcc -o p1_cross p1.c
+
+gcc -c -o p3_lib.o p3_lib.c
+gcc -c -o p3.o p3.c p3_lib.o #będzie warning
+gcc -o p3 p3_lib.o p3.o
+./p3 arg1 arg2 x y
