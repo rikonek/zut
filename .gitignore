@@ -1,4 +1,12 @@
+# wykonywalne
 *.bin
+*.exe
+
+# skompilowane
 *.o
 *.so
-*.exe
+
+# spakowane
+*.tar
+
+*.iso
