@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 #define KOMENTARZ 1
@@ -8,11 +9,14 @@
  * @param int n Ilosc liczb do wylosowania
  * @return int[]
  */
-int losuj(int n)
+int *losuj(int n)
 {
-    int tablica[n];
+    static int tablica[n];
     int i=0;
-    if(KOMENTARZ) printf("Generuje losowa tablice liczb - ilosc elementow %d\n",n);
+
+    memset(tablica,0,sizeof(tablica));
+
+    if(KOMENTARZ) printf("xxxGeneruje losowa tablice liczb - ilosc elementow %d\n",n);
     srand(time(NULL));
     for(;i<n;i++)
     {
@@ -26,7 +30,7 @@ int losuj(int n)
 int main()
 {
     int n=5;
-    int *tablica; //tablica wylosowanych liczb
+    int *ptablica; //tablica wylosowanych liczb
     int znalezione[n]; //tablica unikalnych liczb
     int znalezione_ilosc=0; //ilosc zliczonych unikalnych liczb
     int ilosc[n]; //ilosc unikalnych liczb wzgledem tablicy znalezione[]
@@ -38,16 +42,37 @@ int main()
     int i;
 
     //inicjalizuje tablice - wczesniej nie moge bo rozmiar tablicy nie jest wpisany na sztywno
-    memcpy(znalezione,(int[]) {0}, sizeof(znalezione));
-    memcpy(ilosc,(int[]) {0},sizeof(ilosc));
+    memset(znalezione,0,sizeof(znalezione));
+    memset(ilosc,0,sizeof(ilosc));
 
     //losuje tablice danych
-    tablica=losuj(n);
+    ptablica=losuj(n);
+    printf("Wartosc z Tablica: %d",*(ptablica+1));
 
+/*
     //zliczam ilosc poszczegolnych liczb
     for(i=0;i<n;i++)
     {
-printf("iteracja: %d, znalezione_ilosc: %d\n",i,znalezione_ilosc);
+        printf("Iteracja: %d, znalezione_ilosc: %d\n",i,znalezione_ilosc);
+        jest_w_znalezionych=0;
+        for(z=0;z<=znalezione_ilosc;z++)
+        {
+            if(*(tablica+i)==znalezione[z])
+            {
+                printf("Znalezione %d",z);
+            }
+        }
+        if(jest_w_znalezionych==0)
+        {
+            znalezione_ilosc++;
+        }
+    }
+*/
+/*
+    //zliczam ilosc poszczegolnych liczb
+    for(i=0;i<n;i++)
+    {
+//printf("iteracja: %d, znalezione_ilosc: %d\n",i,znalezione_ilosc);
         jest_w_znalezionych=0;
         if(znalezione_ilosc>0)
         {
@@ -115,6 +140,7 @@ printf("iteracja: %d, znalezione_ilosc: %d\n",i,znalezione_ilosc);
             }
         }
     }
+*/
 
     return 1;
 }
