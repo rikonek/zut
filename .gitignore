@@ -10,4 +10,8 @@
 # spakowane
 *.tar
 
+#skrypty
+*.sh
+
+
 *.iso
