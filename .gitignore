@@ -1,5 +1,6 @@
 # wykonywalne
 *.bin
+*.out
 *.exe
 
 # skompilowane
