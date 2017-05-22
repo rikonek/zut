@@ -17,7 +17,6 @@ int main()
 {
     const int n=100; //ilosc elementow w tablicy
     int zmiana=0; //zmienna pomocnicza do przechowywania informacji o zmianie podczas sortowania
-    int tmp; //zmienna tymczasowa do zamiany wartosci przy sortowaniu
 
     std::array<int,n> tablica {0};
     srand(time(NULL));
@@ -35,9 +34,7 @@ int main()
             if(tablica[i]>tablica[i+1])
             {
                 zmiana=1;
-                tmp=tablica[i];
-                tablica[i]=tablica[i+1];
-                tablica[i+1]=tmp;
+                std::swap(tablica[i],tablica[i+1]);
             }
         }
     }
