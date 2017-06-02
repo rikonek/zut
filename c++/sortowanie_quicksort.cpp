@@ -1,11 +1,10 @@
 #include <iostream>
-#include <array>
+#include <vector>
 #include <algorithm>
 
 using namespace std;
 
-template <std::size_t SIZE>
-void wyswietlTab(std::array<int,SIZE> &tablica)
+void wyswietlTab(std::vector<int> &tablica)
 {
     for(const auto &out: tablica)
     {
@@ -13,8 +12,7 @@ void wyswietlTab(std::array<int,SIZE> &tablica)
     }
 }
 
-template <std::size_t SIZE>
-void sortuj(std::array<int,SIZE> &tablica,int indeksL,int indeksR)
+void sortuj(std::vector<int> &tablica,int indeksL,int indeksR)
 {
     if(indeksL>=indeksR) return;
 
@@ -41,7 +39,7 @@ int main()
 {
     const int n=100; //ilosc elementow w tablicy
 
-    std::array<int,n> tablica {0};
+    std::vector<int> tablica(n);
     srand(time(NULL));
     std::generate(tablica.begin(),tablica.end(),[]()->int { return rand()%100; });
 
@@ -49,7 +47,7 @@ int main()
     wyswietlTab(tablica);
     cout << endl << endl;
 
-    sortuj(tablica,0,n-1);
+    sortuj(tablica,0,tablica.size()-1);
 
     cout << "Tablica posortowana:" << endl;
     wyswietlTab(tablica);
