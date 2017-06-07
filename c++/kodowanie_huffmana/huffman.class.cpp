@@ -157,5 +157,17 @@ std::string huffman::zakoduj(std::ifstream &plik)
 
 huffman::~huffman()
 {
+<<<<<<< HEAD
     usunDrzewo(drzewo.begin()->second);
+=======
+    // tablica_kodowa.clear();
+
+    usunDrzewo(drzewo.begin()->second);
+    // drzewo.clear();
+
+    // for(multimap<char,string>::iterator i=drzewo.begin();i!=drzewo.end();i++)
+    // {
+    //     cout << (*i).first << ": " << (*i).second << endl;
+    // }
+>>>>>>> 2edf107fc7b857b5e8594c8e12dab916d689e117
 }
