@@ -9,6 +9,7 @@ class huffman
     public:
         void debug(bool stan);
         std::string encode(std::ifstream &plik);
+        ~huffman();
 
     private:
         struct lisc
@@ -31,6 +32,7 @@ class huffman
         void zbudujDrzewo();
         void utworzKod(auto &drzewo,std::string kod);
         void wyswietlKod();
+        void usunDrzewo(auto &drzewo);
         std::string zakoduj(std::ifstream &plik);
 };
 
@@ -73,7 +75,7 @@ void huffman::liczZnaki(std::ifstream &plik)
             ilosc_znakow[znak]=1;
         }
     }
-    for(map<char,int>::iterator i=ilosc_znakow.begin();i!=ilosc_znakow.end();i++)
+    for(std::map<char,int>::iterator i=ilosc_znakow.begin();i!=ilosc_znakow.end();i++)
     {
         if(debugowanie) cout << (*i).first << " : " << (*i).second << endl;
         drzewo.insert(std::pair<int,lisc*>((*i).second,new lisc((*i).first,(*i).second)));
@@ -113,9 +115,27 @@ void huffman::utworzKod(auto &drzewo,std::string kod)
 
 void huffman::wyswietlKod()
 {
-    for(map<char,string>::iterator i=tablica_kodowa.begin();i!=tablica_kodowa.end();i++)
+    for(std::map<char,string>::iterator i=tablica_kodowa.begin();i!=tablica_kodowa.end();i++)
     {
         cout << (*i).first << ": " << (*i).second << endl;
+    }
+}
+
+void huffman::usunDrzewo(auto &drzewo)
+{
+    if(drzewo->lewy!=NULL)
+    {
+        usunDrzewo(drzewo->lewy);
+        drzewo->lewy=NULL;
+    }
+    if(drzewo->prawy!=NULL)
+    {
+        usunDrzewo(drzewo->prawy);
+        drzewo->prawy=NULL;
+    }
+    if(drzewo->lewy==NULL && drzewo->prawy==NULL)
+    {
+        delete drzewo;
     }
 }
 
@@ -133,4 +153,9 @@ std::string huffman::zakoduj(std::ifstream &plik)
     if(debugowanie) cout << zakodowane << endl;
 
     return zakodowane;
+}
+
+huffman::~huffman()
+{
+    usunDrzewo(drzewo.begin()->second);
 }

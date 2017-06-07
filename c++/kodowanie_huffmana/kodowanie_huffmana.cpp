@@ -13,6 +13,7 @@ int main()
     huffman h;
     h.debug(true);
     cout << h.encode(plik) << endl;
+    plik.close();
 
     return 0;
 }
