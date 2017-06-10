@@ -12,6 +12,7 @@ tmp/
 
 # spakowane
 *.tar
+*.zip
 
 #skrypty
 *.sh
