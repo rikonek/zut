@@ -17,10 +17,8 @@ class huffman
             char znak;
             int ilosc;
             lisc *lewy, *prawy;
-            lisc(const char znak, const int ilosc)
+            lisc(const char znak, const int ilosc): znak(znak), ilosc(ilosc)
             {
-                this->znak=znak;
-                this->ilosc=ilosc;
                 lewy=NULL;
                 prawy=NULL;
             }
