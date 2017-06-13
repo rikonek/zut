@@ -1,5 +1,6 @@
 # foldery
 tmp/
+build/
 
 # wykonywalne
 *.bin
