@@ -93,11 +93,11 @@ int main()
     {
         if(pthread_create(&client_threads[i],NULL,thread_client,NULL)==0)
         {
-		    cout << "Klient: " << i << " ID = " << pthread_self() << " | new thread = " << client_threads[i] << endl;
-	    }
+            cout << "Klient: " << i << " ID = " << pthread_self() << " | new thread = " << client_threads[i] << endl;
+        }
         else
         {
-		    perror("Nie moge utworzyc klienta");
+            perror("Nie moge utworzyc klienta");
             exit(0);
     	}
     }
@@ -154,7 +154,7 @@ void *thread_server(void *arg)
 {
     std::random_device rd;
 
-	cout << "Serwer - Watek zyje id = " << pthread_self() << endl;
+    cout << "Serwer - Watek zyje id = " << pthread_self() << endl;
     int i=0;
     while(1)
     {
@@ -174,7 +174,7 @@ void *thread_server(void *arg)
 void *thread_client(void *arg)
 {
     std::random_device rd;
-	cout << "Klient - Watek zyje id = " << pthread_self() << endl;
+    cout << "Klient - Watek zyje id = " << pthread_self() << endl;
     while(1)
     {
         // sem_wait(&semafor);
