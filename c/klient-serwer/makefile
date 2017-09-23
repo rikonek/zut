@@ -6,7 +6,7 @@ client:
 	$(cc) -o client.out client.c
 
 server:
-	$(cc) -o server.out server.c -lconfig
+	$(cc) -o server.out server.c config.c -lconfig
 
 clean:
 	rm -f client.out
