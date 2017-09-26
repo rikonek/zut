@@ -1,21 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> // close
 
 #include <sys/socket.h> // socket
-// #include <netinet/in.h> // sockaddr_in
 #include <string.h> // memset, strcspn
-// #include <ctime>
-// #include <unistd.h> // usleep
-// #include <arpa/inet.h> // inet_ntoa
 #include <sys/wait.h>
 #include <signal.h> // sigaction
 #include <netdb.h> // addrinfo
 
-
 #include "config.h"
 
 #define BUFFER 1024
-#define BUFFRESPONSE_SIZE 2048
 
 char *cmdExec(char *cmd);
 char *cmdRemote(char *command, char *type);
@@ -29,6 +24,8 @@ int main(int argc, char *argv[])
     struct addrinfo hints, *result, *resi;
     struct sockaddr_storage client_addr;
     int yes=1;
+    char client_ip[NI_MAXHOST];
+    char client_port[NI_MAXSERV];
     char buffer[BUFFER]={0};
     char *buffresponse=malloc(sizeof(char));
     char *msg_welcome="Welcome client. Type 'exit' to quit.";
@@ -104,11 +101,17 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        printf("server# Client connected\n");
+        if(getnameinfo((struct sockaddr *) &client_addr, addrlen, client_ip, sizeof(client_ip), client_port, sizeof(client_port), 0) != 0)
+        {
+            perror("Getnameinfo");
+            exit(1);
+        }
+        
+        printf("server# Client connected from %s:%s\n", client_ip, client_port);
 
         switch(fork())
         {
-            case 0: //child
+            case 0: // child
                 close(server_fd);
 
                 if(-1==send(client_fd, msg_welcome, strlen(msg_welcome), 0)) // send welcome
@@ -151,7 +154,7 @@ int main(int argc, char *argv[])
                 } // end while
                 break;
 
-            default: //parent
+            default: // parent
                 close(client_fd);
                 break;
         } // end switch fork
@@ -198,7 +201,7 @@ char *cmdExec(char *cmd)
                                 case 'i': // ip
                                     cmdtmp="ip addr show ";
                                     cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    cmdtmp=append(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g'");
+                                    cmdtmp=append(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '");
                                     out=cmdRemote(cmdtmp, "r");
                                     break;
 
@@ -228,21 +231,50 @@ char *cmdExec(char *cmd)
                 case 'i': // interface
                     switch(i)
                     {
-                        case 4:
+                        case 5:
                             switch(cmdarray[3][0])
                             {
-                                case 'i': // ip
-                                    // cmdtmp="ip addr show ";
-                                    // cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    // cmdtmp=append(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g'");
-                                    // out=cmdRemote(cmdtmp, "r");
-                                    break;
-
                                 case 'm': // mac
-                                    // cmdtmp="cat /sys/class/net/";
-                                    // cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    // cmdtmp=append(cmdtmp, "/address | tr '\n' ' '");
-                                    // out=cmdRemote(cmdtmp, "r");
+                                    cmdtmp="ifconfig ";
+                                    cmdtmp=append(cmdtmp, cmdarray[2]);
+                                    cmdtmp=append(cmdtmp, " hw ether ");
+                                    cmdtmp=append(cmdtmp, cmdarray[4]);
+                                    out=cmdRemote(cmdtmp, "r");
+                                    break;
+                            }
+                            break;
+
+                        case 6:
+                            switch(cmdarray[3][0])
+                            {
+                                case 'i': // [i]p
+                                    switch(cmdarray[3][1])
+                                    {
+                                        case 'p': // i[p]
+                                            switch(cmdarray[3][2])
+                                            {
+                                                case '4': // ip4
+                                                    cmdtmp="ifconfig ";
+                                                    cmdtmp=append(cmdtmp, cmdarray[2]);
+                                                    cmdtmp=append(cmdtmp, " ");
+                                                    cmdtmp=append(cmdtmp, cmdarray[4]);
+                                                    cmdtmp=append(cmdtmp, " netmask ");
+                                                    cmdtmp=append(cmdtmp, cmdarray[5]);
+                                                    out=cmdRemote(cmdtmp, "r");
+                                                    break;
+
+                                                case '6': // ip6
+                                                    cmdtmp="ifconfig ";
+                                                    cmdtmp=append(cmdtmp, cmdarray[2]);
+                                                    cmdtmp=append(cmdtmp, " inet6 add ");
+                                                    cmdtmp=append(cmdtmp, cmdarray[4]);
+                                                    cmdtmp=append(cmdtmp, "/");
+                                                    cmdtmp=append(cmdtmp, cmdarray[5]);
+                                                    out=cmdRemote(cmdtmp, "r");
+                                                    break;
+                                            }
+                                            break;
+                                    }
                                     break;
                             }
                             break;
