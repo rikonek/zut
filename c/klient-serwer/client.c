@@ -4,7 +4,6 @@
 
 #include <sys/socket.h> // socket
 #include <string.h> // memset, strcspn
-#include <sys/wait.h>
 #include <netdb.h> // addrinfo
 
 #define BUFFER 1024
@@ -16,11 +15,9 @@ int main(int argc, char *argv[])
 {
     int server_fd;
     struct addrinfo hints, *result, *resi;
-    // struct sockaddr_storage client_addr;
-    // int yes=1;
     char buffer[BUFFER]={0};
     char ip[INET6_ADDRSTRLEN]="127.0.0.1"; // ip[46] - ipv6 with ipv4 tunneling
-    char *port=malloc(sizeof(char));
+    char *port=malloc(6*sizeof(char));
     
     port="7777";
 
@@ -106,7 +103,7 @@ int main(int argc, char *argv[])
         {
             case 'e': // exit
                 close(server_fd);
-                printf("server# Bye\n");
+                printf("server# Bye\n");               
                 exit(0);
                 break;
         }

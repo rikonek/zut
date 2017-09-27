@@ -27,7 +27,8 @@ int main(int argc, char *argv[])
     char client_ip[NI_MAXHOST];
     char client_port[NI_MAXSERV];
     char buffer[BUFFER]={0};
-    char *buffresponse=malloc(sizeof(char));
+    // char *buffresponse=malloc(BUFFER * sizeof(char));
+    char *buffresponse;
     char *msg_welcome="Welcome client. Type 'exit' to quit.";
 
     appconfig *appcfg=malloc(sizeof(appconfig));
@@ -165,7 +166,7 @@ int main(int argc, char *argv[])
 
 char *cmdExec(char *cmd)
 {
-    char *out=malloc(sizeof(char));
+    char *out=malloc(BUFFER * sizeof(char));
     out=NULL;
 
     int i=0;
@@ -240,6 +241,7 @@ char *cmdExec(char *cmd)
                                     cmdtmp=append(cmdtmp, " hw ether ");
                                     cmdtmp=append(cmdtmp, cmdarray[4]);
                                     out=cmdRemote(cmdtmp, "r");
+                                    out="OK";
                                     break;
                             }
                             break;
@@ -261,6 +263,7 @@ char *cmdExec(char *cmd)
                                                     cmdtmp=append(cmdtmp, " netmask ");
                                                     cmdtmp=append(cmdtmp, cmdarray[5]);
                                                     out=cmdRemote(cmdtmp, "r");
+                                                    out="OK";
                                                     break;
 
                                                 case '6': // ip6
@@ -271,6 +274,7 @@ char *cmdExec(char *cmd)
                                                     cmdtmp=append(cmdtmp, "/");
                                                     cmdtmp=append(cmdtmp, cmdarray[5]);
                                                     out=cmdRemote(cmdtmp, "r");
+                                                    out="OK";
                                                     break;
                                             }
                                             break;

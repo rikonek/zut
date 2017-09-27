@@ -26,7 +26,7 @@ void readConfig(appconfig *appcfg, const char *cfg_file)
     }
 
     // convert int port to char ptr_port
-    appcfg->ptr_port=malloc(sizeof(char));
+    appcfg->ptr_port=malloc(6*sizeof(char));
     sprintf(appcfg->ptr_port,"%d",appcfg->port);
 
     if(!config_lookup_int(&cfg, "max_connections", &appcfg->max_connections))
