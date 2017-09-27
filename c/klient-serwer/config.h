@@ -3,7 +3,6 @@
 
 typedef struct appconfig
 {
-    int port;
     char *ptr_port; // getaddrinfo require char *
     int max_connections;
 } appconfig;

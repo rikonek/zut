@@ -7,6 +7,7 @@ void readConfig(appconfig *appcfg, const char *cfg_file)
 {
     config_t cfg;
     config_init(&cfg);
+    int port;
 
     if(!cfg_file)
     {
@@ -20,14 +21,14 @@ void readConfig(appconfig *appcfg, const char *cfg_file)
         exit(1);
     }
 
-    if(!config_lookup_int(&cfg, "port", &appcfg->port))
+    if(!config_lookup_int(&cfg, "port", &port))
     {
-        appcfg->port=7777;
+        port=7777;
     }
 
     // convert int port to char ptr_port
     appcfg->ptr_port=malloc(6*sizeof(char));
-    sprintf(appcfg->ptr_port,"%d",appcfg->port);
+    sprintf(appcfg->ptr_port,"%d",port);
 
     if(!config_lookup_int(&cfg, "max_connections", &appcfg->max_connections))
     {
