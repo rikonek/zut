@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
     char client_ip[NI_MAXHOST];
     char client_port[NI_MAXSERV];
     char buffer[BUFFER]={0};
-    // char *buffresponse=malloc(BUFFER * sizeof(char));
     char *buffresponse;
     char *msg_welcome="Welcome client. Type 'exit' to quit.";
 
@@ -35,7 +34,7 @@ int main(int argc, char *argv[])
     readConfig(appcfg, argv[1]);
 
     printf("Server config:\n");
-    printf(" - port: %d\n", appcfg->port);
+    printf(" - port: %s\n", appcfg->ptr_port);
     printf(" - max connections: %d\n", appcfg->max_connections);
     printf("Server starting...\n");
 
@@ -89,6 +88,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    free(appcfg->ptr_port);
     free(appcfg);
 
     printf("server# Waiting for connections\n");
@@ -166,8 +166,7 @@ int main(int argc, char *argv[])
 
 char *cmdExec(char *cmd)
 {
-    char *out=malloc(BUFFER * sizeof(char));
-    out=NULL;
+    char *out=NULL;
 
     int i=0;
     char *exp, *cmdarray[10], *cmdtmp;

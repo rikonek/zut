@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     struct addrinfo hints, *result, *resi;
     char buffer[BUFFER]={0};
     char ip[INET6_ADDRSTRLEN]="127.0.0.1"; // ip[46] - ipv6 with ipv4 tunneling
-    char *port=malloc(6*sizeof(char));
+    char *port=NULL;
     
     port="7777";
 
