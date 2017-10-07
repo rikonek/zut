@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
                         exit(1);
                     }
 
-                    // free(buffresponse);
+                    free(buffresponse);
 
                     switch(buffer[0])
                     {
@@ -167,7 +167,8 @@ int main(int argc, char *argv[])
 
 char *cmdExec(char *cmd)
 {
-    char *out=NULL;
+    char *out_ptr=NULL;
+    char out[BUFFER]={0};
 
     int i=0;
     char *exp, *cmdarray[10];
@@ -183,42 +184,46 @@ char *cmdExec(char *cmd)
     switch(cmdarray[0][0])
     {
         case 'e': // exit
-            out="Connection closed by client";
+            strcpy(out, "Connection closed by client");
             break;
 
         case 'g': // get
-            out="Incomplete command";
+            strcpy(out, "Incomplete command");
             switch(cmdarray[1][0])
             {
                 case 'i': // interface
                     switch(i)
                     {
                         case 2:
-                            out=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r");
+                            memset(&out[0],0,sizeof(out));
+                            out_ptr=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r");
                             break;
 
                         case 4:
                             switch(cmdarray[3][0])
                             {
                                 case 'i': // ip
+                                    memset(&out[0],0,sizeof(out));
                                     strcpy(cmdtmp, "ip addr show ");
                                     strcat(cmdtmp, cmdarray[2]);
                                     strcat(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '");
-                                    out=cmdRemote(cmdtmp, "r");
+                                    out_ptr=cmdRemote(cmdtmp, "r");
                                     break;
 
                                 case 'm': // mac
+                                    memset(&out[0],0,sizeof(out));
                                     strcpy(cmdtmp, "cat /sys/class/net/");
                                     strcat(cmdtmp, cmdarray[2]);
                                     strcat(cmdtmp, "/address | tr '\n' ' '");
-                                    out=cmdRemote(cmdtmp, "r");
+                                    out_ptr=cmdRemote(cmdtmp, "r");
                                     break;
 
                                 case 's': // status
+                                    memset(&out[0],0,sizeof(out));
                                     strcpy(cmdtmp, "cat /sys/class/net/");
                                     strcat(cmdtmp, cmdarray[2]);
                                     strcat(cmdtmp, "/operstate | tr '\n' ' '");
-                                    out=cmdRemote(cmdtmp, "r");
+                                    out_ptr=cmdRemote(cmdtmp, "r");
                                     break;
                             }
                             break;
@@ -227,7 +232,7 @@ char *cmdExec(char *cmd)
             }
             break;
         case 's': // set
-            out="Incomplete command";
+            strcpy(out, "Incomplete command");
             switch(cmdarray[1][0])
             {
                 case 'i': // interface
@@ -241,8 +246,8 @@ char *cmdExec(char *cmd)
                                     strcat(cmdtmp, cmdarray[2]);
                                     strcat(cmdtmp, " hw ether ");
                                     strcat(cmdtmp, cmdarray[4]);
-                                    out=cmdRemote(cmdtmp, "r");
-                                    out="OK";
+                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                    strcpy(out, "OK");
                                     break;
                             }
                             break;
@@ -263,8 +268,8 @@ char *cmdExec(char *cmd)
                                                     strcat(cmdtmp, cmdarray[4]);
                                                     strcat(cmdtmp, " netmask ");
                                                     strcat(cmdtmp, cmdarray[5]);
-                                                    out=cmdRemote(cmdtmp, "r");
-                                                    out="OK";
+                                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                                    strcpy(out, "OK");
                                                     break;
 
                                                 case '6': // ip6
@@ -274,8 +279,8 @@ char *cmdExec(char *cmd)
                                                     strcat(cmdtmp, cmdarray[4]);
                                                     strcat(cmdtmp, "/");
                                                     strcat(cmdtmp, cmdarray[5]);
-                                                    out=cmdRemote(cmdtmp, "r");
-                                                    out="OK";
+                                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                                    strcpy(out, "OK");
                                                     break;
                                             }
                                             break;
@@ -289,12 +294,17 @@ char *cmdExec(char *cmd)
             break;
     }
 
-    if(out==NULL)
+    if(NULL==out_ptr)
     {
-        out="Invalid command";
+        out_ptr=calloc(BUFFER, sizeof(char));
+        strcpy(out_ptr, "Invalid command");
+    }
+    if(0!=strlen(out))
+    {
+        strcpy(out_ptr, out);
     }
 
-    return out;
+    return out_ptr;
 }
 
 char *cmdRemote(const char *command, const char *type)
