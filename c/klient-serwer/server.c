@@ -13,8 +13,7 @@
 #define BUFFER 1024
 
 char *cmdExec(char *cmd);
-char *cmdRemote(char *command, char *type);
-char *append(char *string1, char *string2);
+char *cmdRemote(const char *command, const char *type);
 void sigchld_handler(int s);
 
 int main(int argc, char *argv[])
@@ -27,7 +26,7 @@ int main(int argc, char *argv[])
     char client_ip[NI_MAXHOST];
     char client_port[NI_MAXSERV];
     char buffer[BUFFER]={0};
-    char *buffresponse;
+    char *buffresponse=NULL;
     char *msg_welcome="Welcome client. Type 'exit' to quit.";
 
     appconfig *appcfg=malloc(sizeof(appconfig));
@@ -145,6 +144,8 @@ int main(int argc, char *argv[])
                         exit(1);
                     }
 
+                    // free(buffresponse);
+
                     switch(buffer[0])
                     {
                         case 'e':
@@ -169,7 +170,8 @@ char *cmdExec(char *cmd)
     char *out=NULL;
 
     int i=0;
-    char *exp, *cmdarray[10], *cmdtmp;
+    char *exp, *cmdarray[10];
+    char cmdtmp[BUFFER]={0};
     exp=strtok(cmd," ");
     while(exp!=NULL)
     {
@@ -199,23 +201,23 @@ char *cmdExec(char *cmd)
                             switch(cmdarray[3][0])
                             {
                                 case 'i': // ip
-                                    cmdtmp="ip addr show ";
-                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    cmdtmp=append(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '");
+                                    strcpy(cmdtmp, "ip addr show ");
+                                    strcat(cmdtmp, cmdarray[2]);
+                                    strcat(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '");
                                     out=cmdRemote(cmdtmp, "r");
                                     break;
 
                                 case 'm': // mac
-                                    cmdtmp="cat /sys/class/net/";
-                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    cmdtmp=append(cmdtmp, "/address | tr '\n' ' '");
+                                    strcpy(cmdtmp, "cat /sys/class/net/");
+                                    strcat(cmdtmp, cmdarray[2]);
+                                    strcat(cmdtmp, "/address | tr '\n' ' '");
                                     out=cmdRemote(cmdtmp, "r");
                                     break;
 
                                 case 's': // status
-                                    cmdtmp="cat /sys/class/net/";
-                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    cmdtmp=append(cmdtmp, "/operstate | tr '\n' ' '");
+                                    strcpy(cmdtmp, "cat /sys/class/net/");
+                                    strcat(cmdtmp, cmdarray[2]);
+                                    strcat(cmdtmp, "/operstate | tr '\n' ' '");
                                     out=cmdRemote(cmdtmp, "r");
                                     break;
                             }
@@ -235,10 +237,10 @@ char *cmdExec(char *cmd)
                             switch(cmdarray[3][0])
                             {
                                 case 'm': // mac
-                                    cmdtmp="ifconfig ";
-                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                    cmdtmp=append(cmdtmp, " hw ether ");
-                                    cmdtmp=append(cmdtmp, cmdarray[4]);
+                                    strcpy(cmdtmp, "ifconfig ");
+                                    strcat(cmdtmp, cmdarray[2]);
+                                    strcat(cmdtmp, " hw ether ");
+                                    strcat(cmdtmp, cmdarray[4]);
                                     out=cmdRemote(cmdtmp, "r");
                                     out="OK";
                                     break;
@@ -255,23 +257,23 @@ char *cmdExec(char *cmd)
                                             switch(cmdarray[3][2])
                                             {
                                                 case '4': // ip4
-                                                    cmdtmp="ifconfig ";
-                                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                                    cmdtmp=append(cmdtmp, " ");
-                                                    cmdtmp=append(cmdtmp, cmdarray[4]);
-                                                    cmdtmp=append(cmdtmp, " netmask ");
-                                                    cmdtmp=append(cmdtmp, cmdarray[5]);
+                                                    strcpy(cmdtmp, "ifconfig ");
+                                                    strcat(cmdtmp, cmdarray[2]);
+                                                    strcat(cmdtmp, " ");
+                                                    strcat(cmdtmp, cmdarray[4]);
+                                                    strcat(cmdtmp, " netmask ");
+                                                    strcat(cmdtmp, cmdarray[5]);
                                                     out=cmdRemote(cmdtmp, "r");
                                                     out="OK";
                                                     break;
 
                                                 case '6': // ip6
-                                                    cmdtmp="ifconfig ";
-                                                    cmdtmp=append(cmdtmp, cmdarray[2]);
-                                                    cmdtmp=append(cmdtmp, " inet6 add ");
-                                                    cmdtmp=append(cmdtmp, cmdarray[4]);
-                                                    cmdtmp=append(cmdtmp, "/");
-                                                    cmdtmp=append(cmdtmp, cmdarray[5]);
+                                                    strcpy(cmdtmp, "ifconfig ");
+                                                    strcat(cmdtmp, cmdarray[2]);
+                                                    strcat(cmdtmp, " inet6 add ");
+                                                    strcat(cmdtmp, cmdarray[4]);
+                                                    strcat(cmdtmp, "/");
+                                                    strcat(cmdtmp, cmdarray[5]);
                                                     out=cmdRemote(cmdtmp, "r");
                                                     out="OK";
                                                     break;
@@ -295,11 +297,11 @@ char *cmdExec(char *cmd)
     return out;
 }
 
-char *cmdRemote(char *command, char *type)
+char *cmdRemote(const char *command, const char *type)
 {
     FILE *cmd;
     char line[100];
-    char *fullline="";
+    char *fullline=calloc(BUFFER, sizeof(char));
 
     cmd=popen(command, type);
     if(!cmd)
@@ -308,18 +310,11 @@ char *cmdRemote(char *command, char *type)
     }
     while(fgets(line,100,cmd))
     {
-        fullline=append(fullline,line);
+        strcat(fullline, line);
     }
 
     pclose(cmd);
     return fullline;
-}
-
-char *append(char *string1, char *string2)
-{
-    char *result=NULL;
-    asprintf(&result, "%s%s", string1, string2);
-    return result;
 }
 
 void sigchld_handler(int s)
