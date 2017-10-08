@@ -172,7 +172,7 @@ char *cmdExec(char *cmd)
 
     int i=0;
     char *exp, *cmdarray[10];
-    char cmdtmp[BUFFER]={0};
+    char *cmdtmp_ptr=NULL;
     exp=strtok(cmd," ");
     while(exp!=NULL)
     {
@@ -204,26 +204,23 @@ char *cmdExec(char *cmd)
                             {
                                 case 'i': // ip
                                     memset(&out[0],0,sizeof(out));
-                                    strcpy(cmdtmp, "ip addr show ");
-                                    strcat(cmdtmp, cmdarray[2]);
-                                    strcat(cmdtmp, " | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '");
-                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                    asprintf(&cmdtmp_ptr, "ip addr show %s | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '", cmdarray[2]);
+                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                    free(cmdtmp_ptr);
                                     break;
 
                                 case 'm': // mac
                                     memset(&out[0],0,sizeof(out));
-                                    strcpy(cmdtmp, "cat /sys/class/net/");
-                                    strcat(cmdtmp, cmdarray[2]);
-                                    strcat(cmdtmp, "/address | tr '\n' ' '");
-                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                    asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/address | tr '\n' ' '", cmdarray[2]);
+                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                    free(cmdtmp_ptr);
                                     break;
 
                                 case 's': // status
                                     memset(&out[0],0,sizeof(out));
-                                    strcpy(cmdtmp, "cat /sys/class/net/");
-                                    strcat(cmdtmp, cmdarray[2]);
-                                    strcat(cmdtmp, "/operstate | tr '\n' ' '");
-                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                    asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/operstate | tr '\n' ' '", cmdarray[2]);
+                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                    free(cmdtmp_ptr);
                                     break;
                             }
                             break;
@@ -242,11 +239,9 @@ char *cmdExec(char *cmd)
                             switch(cmdarray[3][0])
                             {
                                 case 'm': // mac
-                                    strcpy(cmdtmp, "ifconfig ");
-                                    strcat(cmdtmp, cmdarray[2]);
-                                    strcat(cmdtmp, " hw ether ");
-                                    strcat(cmdtmp, cmdarray[4]);
-                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                    asprintf(&cmdtmp_ptr, "ifconfig %s hw ether %s", cmdarray[2], cmdarray[4]);
+                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                    free(cmdtmp_ptr);
                                     strcpy(out, "OK");
                                     break;
                             }
@@ -262,24 +257,16 @@ char *cmdExec(char *cmd)
                                             switch(cmdarray[3][2])
                                             {
                                                 case '4': // ip4
-                                                    strcpy(cmdtmp, "ifconfig ");
-                                                    strcat(cmdtmp, cmdarray[2]);
-                                                    strcat(cmdtmp, " ");
-                                                    strcat(cmdtmp, cmdarray[4]);
-                                                    strcat(cmdtmp, " netmask ");
-                                                    strcat(cmdtmp, cmdarray[5]);
-                                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                                    asprintf(&cmdtmp_ptr, "ifconfig %s %s netmask %s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                    free(cmdtmp_ptr);
                                                     strcpy(out, "OK");
                                                     break;
 
                                                 case '6': // ip6
-                                                    strcpy(cmdtmp, "ifconfig ");
-                                                    strcat(cmdtmp, cmdarray[2]);
-                                                    strcat(cmdtmp, " inet6 add ");
-                                                    strcat(cmdtmp, cmdarray[4]);
-                                                    strcat(cmdtmp, "/");
-                                                    strcat(cmdtmp, cmdarray[5]);
-                                                    out_ptr=cmdRemote(cmdtmp, "r");
+                                                    asprintf(&cmdtmp_ptr, "ifconfig %s inet6 add %s/%s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                    free(cmdtmp_ptr);
                                                     strcpy(out, "OK");
                                                     break;
                                             }
