@@ -22,15 +22,25 @@ int main(int argc, char *argv[])
     struct sigaction sa;
     struct addrinfo hints, *result, *resi;
     struct sockaddr_storage client_addr;
+    pid_t pid;
+    pid_t return_pid; // return child pid status
     int yes=1;
+    int status;
+    int i; // iteration
+    int active_connections=0;
+    int max_connections=0;
     char client_ip[NI_MAXHOST];
     char client_port[NI_MAXSERV];
     char buffer[BUFFER]={0};
     char *buffresponse=NULL;
     char *msg_welcome="Welcome client. Type 'exit' to quit.";
+    char *msg_too_many="Sorry, too many clients.";
 
     appconfig *appcfg=malloc(sizeof(appconfig));
     readConfig(appcfg, argv[1]);
+
+    int forks[appcfg->max_connections]; // child pid array
+    memset(forks, 0, appcfg->max_connections*sizeof(int));
 
     printf("Server config:\n");
     printf(" - port: %s\n", appcfg->ptr_port);
@@ -88,6 +98,7 @@ int main(int argc, char *argv[])
     }
 
     free(appcfg->ptr_port);
+    max_connections=appcfg->max_connections;
     free(appcfg);
 
     printf("server# Waiting for connections\n");
@@ -101,6 +112,8 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
+        active_connections++;
+
         if(getnameinfo((struct sockaddr *) &client_addr, addrlen, client_ip, sizeof(client_ip), client_port, sizeof(client_port), 0) != 0)
         {
             perror("Getnameinfo");
@@ -109,7 +122,39 @@ int main(int argc, char *argv[])
         
         printf("server# Client connected from %s:%s\n", client_ip, client_port);
 
-        switch(fork())
+        active_connections=1;
+        for(i=0; i<max_connections; i++) // count active connections
+        {
+            if(forks[i]>0)
+            {
+                active_connections++;
+                return_pid=waitpid(forks[i], &status, WNOHANG);
+                if(0!=return_pid)
+                {
+                    active_connections--;
+                    forks[i]=0;
+                }
+            }
+        }
+        if(active_connections<=max_connections)
+        {
+            printf("server# Connected clients %i/%i\n", active_connections, max_connections);
+        }
+
+        if(active_connections>max_connections) // limit connections and send message
+        {
+            printf("server# %s\n", msg_too_many);
+            if(-1==send(client_fd, msg_too_many, strlen(msg_too_many), 0))
+            {
+                perror("Send");
+                exit(1);
+            }
+            close(client_fd);
+            continue;
+        }
+
+        pid=fork();
+        switch(pid)
         {
             case 0: // child
                 close(server_fd);
@@ -138,6 +183,13 @@ int main(int argc, char *argv[])
 
                     printf("server# %s\n", buffresponse);
 
+                    switch(buffer[0])
+                    {
+                        case 'e':
+                            strcpy(buffresponse, "Bye!");
+                            break;
+                    }
+
                     if(-1==send(client_fd, buffresponse, strlen(buffresponse), 0))
                     {
                         perror("Send response");
@@ -157,6 +209,23 @@ int main(int argc, char *argv[])
                 break;
 
             default: // parent
+                for(i=0; i<max_connections; i++) // assign child pid to forks[]
+                {
+                    if(0==forks[i]) // empty, assign this child pid
+                    {
+                        forks[i]=pid;
+                        break;
+                    }
+                    else // not empty, check child pid status
+                    {
+                        return_pid=waitpid(forks[i], &status, WNOHANG);
+                        if(0!=return_pid)
+                        {
+                            forks[i]=pid;
+                            break;
+                        }
+                    }
+                }
                 close(client_fd);
                 break;
         } // end switch fork
@@ -173,112 +242,116 @@ char *cmdExec(char *cmd)
     int i=0;
     char *exp, *cmdarray[10];
     char *cmdtmp_ptr=NULL;
-    exp=strtok(cmd," ");
-    while(exp!=NULL)
+
+    if(0!=strlen(cmd))
     {
-        cmdarray[i]=exp;
-        i++;
-        exp=strtok(NULL," ");
-    }
+        exp=strtok(cmd," ");
+        while(exp!=NULL)
+        {
+            cmdarray[i]=exp;
+            i++;
+            exp=strtok(NULL," ");
+        }
 
-    switch(cmdarray[0][0])
-    {
-        case 'e': // exit
-            strcpy(out, "Connection closed by client");
-            break;
+        switch(cmdarray[0][0])
+        {
+            case 'e': // exit
+                strcpy(out, "Connection closed by client");
+                break;
 
-        case 'g': // get
-            strcpy(out, "Incomplete command");
-            switch(cmdarray[1][0])
-            {
-                case 'i': // interface
-                    switch(i)
-                    {
-                        case 2:
-                            memset(&out[0],0,sizeof(out));
-                            out_ptr=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r");
-                            break;
+            case 'g': // get
+                strcpy(out, "Incomplete command");
+                switch(cmdarray[1][0])
+                {
+                    case 'i': // interface
+                        switch(i)
+                        {
+                            case 2:
+                                memset(&out[0],0,sizeof(out));
+                                out_ptr=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r");
+                                break;
 
-                        case 4:
-                            switch(cmdarray[3][0])
-                            {
-                                case 'i': // ip
-                                    memset(&out[0],0,sizeof(out));
-                                    asprintf(&cmdtmp_ptr, "ip addr show %s | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '", cmdarray[2]);
-                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                    free(cmdtmp_ptr);
-                                    break;
+                            case 4:
+                                switch(cmdarray[3][0])
+                                {
+                                    case 'i': // ip
+                                        memset(&out[0],0,sizeof(out));
+                                        asprintf(&cmdtmp_ptr, "ip addr show %s | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        free(cmdtmp_ptr);
+                                        break;
 
-                                case 'm': // mac
-                                    memset(&out[0],0,sizeof(out));
-                                    asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/address | tr '\n' ' '", cmdarray[2]);
-                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                    free(cmdtmp_ptr);
-                                    break;
+                                    case 'm': // mac
+                                        memset(&out[0],0,sizeof(out));
+                                        asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/address | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        free(cmdtmp_ptr);
+                                        break;
 
-                                case 's': // status
-                                    memset(&out[0],0,sizeof(out));
-                                    asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/operstate | tr '\n' ' '", cmdarray[2]);
-                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                    free(cmdtmp_ptr);
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 's': // set
-            strcpy(out, "Incomplete command");
-            switch(cmdarray[1][0])
-            {
-                case 'i': // interface
-                    switch(i)
-                    {
-                        case 5:
-                            switch(cmdarray[3][0])
-                            {
-                                case 'm': // mac
-                                    asprintf(&cmdtmp_ptr, "ifconfig %s hw ether %s", cmdarray[2], cmdarray[4]);
-                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                    free(cmdtmp_ptr);
-                                    strcpy(out, "OK");
-                                    break;
-                            }
-                            break;
+                                    case 's': // status
+                                        memset(&out[0],0,sizeof(out));
+                                        asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/operstate | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        free(cmdtmp_ptr);
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case 's': // set
+                strcpy(out, "Incomplete command");
+                switch(cmdarray[1][0])
+                {
+                    case 'i': // interface
+                        switch(i)
+                        {
+                            case 5:
+                                switch(cmdarray[3][0])
+                                {
+                                    case 'm': // mac
+                                        asprintf(&cmdtmp_ptr, "ifconfig %s hw ether %s", cmdarray[2], cmdarray[4]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        free(cmdtmp_ptr);
+                                        strcpy(out, "OK");
+                                        break;
+                                }
+                                break;
 
-                        case 6:
-                            switch(cmdarray[3][0])
-                            {
-                                case 'i': // [i]p
-                                    switch(cmdarray[3][1])
-                                    {
-                                        case 'p': // i[p]
-                                            switch(cmdarray[3][2])
-                                            {
-                                                case '4': // ip4
-                                                    asprintf(&cmdtmp_ptr, "ifconfig %s %s netmask %s", cmdarray[2], cmdarray[4], cmdarray[5]);
-                                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                                    free(cmdtmp_ptr);
-                                                    strcpy(out, "OK");
-                                                    break;
+                            case 6:
+                                switch(cmdarray[3][0])
+                                {
+                                    case 'i': // [i]p
+                                        switch(cmdarray[3][1])
+                                        {
+                                            case 'p': // i[p]
+                                                switch(cmdarray[3][2])
+                                                {
+                                                    case '4': // ip4
+                                                        asprintf(&cmdtmp_ptr, "ifconfig %s %s netmask %s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                        free(cmdtmp_ptr);
+                                                        strcpy(out, "OK");
+                                                        break;
 
-                                                case '6': // ip6
-                                                    asprintf(&cmdtmp_ptr, "ifconfig %s inet6 add %s/%s", cmdarray[2], cmdarray[4], cmdarray[5]);
-                                                    out_ptr=cmdRemote(cmdtmp_ptr, "r");
-                                                    free(cmdtmp_ptr);
-                                                    strcpy(out, "OK");
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-            }
-            break;
+                                                    case '6': // ip6
+                                                        asprintf(&cmdtmp_ptr, "ifconfig %s inet6 add %s/%s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                        free(cmdtmp_ptr);
+                                                        strcpy(out, "OK");
+                                                        break;
+                                                }
+                                                break;
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+        }
     }
 
     if(NULL==out_ptr)
@@ -316,5 +389,5 @@ char *cmdRemote(const char *command, const char *type)
 
 void sigchld_handler(int s)
 {
-    while(wait(NULL)>0);
+    while(waitpid(-1, NULL, WNOHANG)>0);
 }
