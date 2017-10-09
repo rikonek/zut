@@ -81,6 +81,12 @@ int main(int argc, char *argv[])
     }
     printf("server# %s\n", buffer);
 
+    if(strcmp(buffer, "Sorry, too many clients.")==0)
+    {
+        close(server_fd);
+        exit(0);
+    }
+
     while(1)
     {
         printf("client# ");
@@ -99,15 +105,6 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        switch(buffer[0])
-        {
-            case 'e': // exit
-                close(server_fd);
-                printf("server# Bye\n");               
-                exit(0);
-                break;
-        }
-
         // read response
         memset(&buffer[0],0,sizeof(buffer)); // clear old buffer
         if(-1==recv(server_fd, buffer, BUFFER, 0))
@@ -117,6 +114,12 @@ int main(int argc, char *argv[])
         }
         buffer[strcspn(buffer,"\r\n")]=0; // remove new line
         printf("server# %s\n", buffer);
+
+        if(strcmp(buffer, "Bye!")==0)
+        {
+            close(server_fd);
+            exit(0);
+        }
     }
 
     return 0;
