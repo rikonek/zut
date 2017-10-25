@@ -1,4 +1,5 @@
 // zadanie na zaliczenie
+// bartek.taczala@gmail.com
 
 // Implement Matrix<N, M, T> (order is random here!)
 //     N - number of rows
