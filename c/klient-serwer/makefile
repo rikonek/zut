@@ -11,3 +11,6 @@ server:
 clean:
 	rm -f client.out
 	rm -f server.out
+
+libconfig:
+	sudo apt-get install libconfig-dev
