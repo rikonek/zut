@@ -15,9 +15,5 @@ build/
 *.tar
 *.zip
 
-#skrypty
-*.sh
-
-
 *.iso
 *.vscode
