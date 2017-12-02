@@ -16,6 +16,3 @@ build/
 *.zip
 
 *.iso
-*.vscode
-.vscode/
-!*/

@@ -1,0 +1,51 @@
+Zainstalować "Chromium Web Browser"
+
+
+
+
+Instalacja pythona 2.7x
+sudo apt-get install python-pip
+
+Instalacja robotframework uzycie pip (defaultowo z pythonem)
+sudo pip install robotframework
+
+Instalacja selenium biblioteki
+sudo pip install robotframework-selenium2library
+
+Instalacja SSHLibrary
+sudo pip install robotframework-sshlibrary
+
+Instalacja pakietów do wxPython
+sudo apt-get install libwxgtk2.8-dev libwxgtk2.8-dbg
+sudo apt-get install build-essential
+sudo apt-get install python-wxtools python-wxgtk2.8-dbg
+
+W przypadku problemów (ubuntu 16.04 i wyżej)
+sudo add-apt-repository ppa:nilarimogard/webupd8
+sudo apt-get update
+sudo apt-get install python-wxgtk2.8
+
+Instalacja RIDE
+sudo pip install robotframework-ride
+
+
+
+
+Instalacja chrome driver
+
+sudo apt-get install unzip
+wget -N http://chromedriver.storage.googleapis.com/2.26/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+chmod +x chromedriver
+sudo mv -f chromedriver /usr/local/share/chromedriver
+sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
+sudo ln -s /usr/local/share/chromedriver /usr/bin/chromedriver
+
+
+
+
+sudo apt-get install python-qt4
+
+
+
+Przeczytać dokumentację do Selenium2Library - https://github.com/robotframework/Selenium2Library

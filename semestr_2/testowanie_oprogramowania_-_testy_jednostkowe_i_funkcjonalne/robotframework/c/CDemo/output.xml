@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20171202 10:27:42.836" generator="Robot 3.0.2 (Python 2.7.14 on linux2)">
+<suite source="/home/radek/Pulpit/zut/Semestr 2/Testowanie oprogramowania - testy jednostowe i funkcjonalne/robotframework/CDemo/login_tests.robot" id="s1" name="Login Tests">
+<test id="s1-t1" name="Validate Users">
+<kw name="Login with valid user should succeed">
+<arguments>
+<arg>johns</arg>
+<arg>long</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<status status="PASS" endtime="20171202 10:27:42.869" starttime="20171202 10:27:42.868"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.869" starttime="20171202 10:27:42.868"></status>
+</kw>
+<kw name="Login with valid user should succeed">
+<arguments>
+<arg>demo</arg>
+<arg>mode</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<status status="PASS" endtime="20171202 10:27:42.870" starttime="20171202 10:27:42.869"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.870" starttime="20171202 10:27:42.869"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.870" critical="yes" starttime="20171202 10:27:42.867"></status>
+</test>
+<test id="s1-t2" name="Login With Invalid User Should Fail">
+<kw name="Login with invalid user should fail">
+<arguments>
+<arg>de</arg>
+<arg>mo</arg>
+</arguments>
+<kw name="Run Keyword And Expect Error" library="BuiltIn">
+<doc>Runs the keyword and checks that the expected error occurred.</doc>
+<arguments>
+<arg>Wrong username/password combination</arg>
+<arg>Check User</arg>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20171202 10:27:42.872" level="FAIL">Wrong username/password combination</msg>
+<status status="FAIL" endtime="20171202 10:27:42.872" starttime="20171202 10:27:42.872"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.872" starttime="20171202 10:27:42.871"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.873" starttime="20171202 10:27:42.871"></status>
+</kw>
+<kw name="Login with invalid user should fail">
+<arguments>
+<arg>invalid</arg>
+<arg>invalid</arg>
+</arguments>
+<kw name="Run Keyword And Expect Error" library="BuiltIn">
+<doc>Runs the keyword and checks that the expected error occurred.</doc>
+<arguments>
+<arg>Wrong username/password combination</arg>
+<arg>Check User</arg>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20171202 10:27:42.874" level="FAIL">Wrong username/password combination</msg>
+<status status="FAIL" endtime="20171202 10:27:42.874" starttime="20171202 10:27:42.873"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.874" starttime="20171202 10:27:42.873"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.874" starttime="20171202 10:27:42.873"></status>
+</kw>
+<kw name="Login with invalid user should fail">
+<arguments>
+<arg>long</arg>
+<arg>invalid</arg>
+</arguments>
+<kw name="Run Keyword And Expect Error" library="BuiltIn">
+<doc>Runs the keyword and checks that the expected error occurred.</doc>
+<arguments>
+<arg>Wrong username/password combination</arg>
+<arg>Check User</arg>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20171202 10:27:42.875" level="FAIL">Wrong username/password combination</msg>
+<status status="FAIL" endtime="20171202 10:27:42.876" starttime="20171202 10:27:42.875"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.876" starttime="20171202 10:27:42.875"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.876" starttime="20171202 10:27:42.874"></status>
+</kw>
+<kw name="Login with invalid user should fail">
+<arguments>
+<arg>${EMPTY}</arg>
+<arg>${EMPTY}</arg>
+</arguments>
+<kw name="Run Keyword And Expect Error" library="BuiltIn">
+<doc>Runs the keyword and checks that the expected error occurred.</doc>
+<arguments>
+<arg>Wrong username/password combination</arg>
+<arg>Check User</arg>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<kw name="Check User" library="LoginLibrary">
+<doc>Validates user name and password using imported shared C library.</doc>
+<arguments>
+<arg>${username}</arg>
+<arg>${password}</arg>
+</arguments>
+<msg timestamp="20171202 10:27:42.877" level="FAIL">Wrong username/password combination</msg>
+<status status="FAIL" endtime="20171202 10:27:42.877" starttime="20171202 10:27:42.877"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.877" starttime="20171202 10:27:42.876"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.877" starttime="20171202 10:27:42.876"></status>
+</kw>
+<status status="PASS" endtime="20171202 10:27:42.879" critical="yes" starttime="20171202 10:27:42.870"></status>
+</test>
+<status status="PASS" endtime="20171202 10:27:42.879" starttime="20171202 10:27:42.838"></status>
+</suite>
+<statistics>
+<total>
+<stat fail="0" pass="2">Critical Tests</stat>
+<stat fail="0" pass="2">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat fail="0" id="s1" name="Login Tests" pass="2">Login Tests</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
