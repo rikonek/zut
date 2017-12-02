@@ -17,3 +17,5 @@ build/
 
 *.iso
 *.vscode
+.vscode/
+!*/
