@@ -1,11 +1,13 @@
 # foldery
 tmp/
 build/
+.vscode/
 
 # wykonywalne
 *.bin
 *.out
 *.exe
+*.pyc
 
 # skompilowane
 *.o
