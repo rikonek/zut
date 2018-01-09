@@ -1,16 +1,25 @@
-cc = gcc -g -Wall
+CC = gcc
+
+CFLAGS = -g -Wall -Werror
+LDFLAGS = -g
 
 all: client server
 
-client:
-	$(cc) -o client.out client.c
+CLIENT_LIBS=client.o
+SERVER_LIBS=server.o config.o
 
-server:
-	$(cc) -o server.out server.c config.c -lconfig -D _GNU_SOURCE
+client: $(CLIENT_LIBS)
+	$(CC) $(LDFLAGS) -o client.out $^
 
-clean:
-	rm -f client.out
-	rm -f server.out
+server: $(SERVER_LIBS)
+	$(CC) $(LDFLAGS) -o server.out $^ -lconfig -D _GNU_SOURCE
+
+%o: %c
+	$(CC) $(CFLAGS) -o $@ $<
+
+clean: 
+	-@rm -f client.out $(CLIENT_LIBS)
+	-@rm -f server.out $(SERVER_LIBS)
 
 libconfig:
 	sudo apt-get install libconfig-dev
