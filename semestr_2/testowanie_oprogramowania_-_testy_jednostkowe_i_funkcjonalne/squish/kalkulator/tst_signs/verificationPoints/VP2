@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<VerificationPoint type="Visual" version="4">
+<Description/>
+<Verification object=":56789_Text">
+<visual>
+  <ui version="1.0">
+    <execution>
+      <state>
+        <element class="QQuickText" id="587d1669" simplifiedType="Text">
+          <image type="PNG">iVBORw0KGgoAAAANSUhEUgAAADkAAAAWCAIAAAD1gKMxAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAG0lEQVRIie3BAQ0AAADCoPdPbQ43oAAAAODHAA7IAAF234ORAAAAAElFTkSuQmCC</image>
+          <abstractProperties>
+            <visual isTopLevel="1"/>
+            <geometry isRelative="0">
+              <x>381</x>
+              <y>230</y>
+              <height>22</height>
+              <width>57</width>
+            </geometry>
+          </abstractProperties>
+          <properties>
+            <property name="leftPadding">
+              <string>0</string>
+            </property>
+            <property name="rotation">
+              <string>0</string>
+            </property>
+            <property name="paintedWidth">
+              <string>57.1875</string>
+            </property>
+            <property name="topPadding">
+              <string>0</string>
+            </property>
+            <property name="focus">
+              <string>false</string>
+            </property>
+            <property name="rightPadding">
+              <string>0</string>
+            </property>
+            <property name="fontSizeMode">
+              <string>0</string>
+            </property>
+            <property name="lineHeightMode">
+              <string>0</string>
+            </property>
+            <property name="elide">
+              <string>3</string>
+            </property>
+            <property name="smooth">
+              <string>true</string>
+            </property>
+            <property name="truncated">
+              <string>false</string>
+            </property>
+            <property name="horizontalAlignment">
+              <string>1</string>
+            </property>
+            <property name="opacity">
+              <string>1</string>
+            </property>
+            <property name="paintedHeight">
+              <string>22</string>
+            </property>
+            <property name="effectiveHorizontalAlignment">
+              <string>1</string>
+            </property>
+            <property name="style">
+              <string>0</string>
+            </property>
+            <property name="textFormat">
+              <string>2</string>
+            </property>
+            <property name="baselineOffset">
+              <string>17</string>
+            </property>
+            <property name="scale">
+              <string>1</string>
+            </property>
+            <property name="verticalAlignment">
+              <string>32</string>
+            </property>
+            <property name="implicitHeight">
+              <string>22</string>
+            </property>
+            <property name="padding">
+              <string>0</string>
+            </property>
+            <property name="hoveredLink"/>
+            <property name="contentWidth">
+              <string>57.1875</string>
+            </property>
+            <property name="activeFocus">
+              <string>false</string>
+            </property>
+            <property name="antialiasing">
+              <string>true</string>
+            </property>
+            <property name="minimumPointSize">
+              <string>12</string>
+            </property>
+            <property name="contentHeight">
+              <string>22</string>
+            </property>
+            <property name="state"/>
+            <property name="maximumLineCount">
+              <string>2147483647</string>
+            </property>
+            <property name="lineCount">
+              <string>1</string>
+            </property>
+            <property name="renderType">
+              <string>0</string>
+            </property>
+            <property name="lineHeight">
+              <string>1</string>
+            </property>
+            <property name="minimumPixelSize">
+              <string>12</string>
+            </property>
+            <property name="enabled">
+              <string>true</string>
+            </property>
+            <property name="clip">
+              <string>false</string>
+            </property>
+            <property name="transformOrigin">
+              <string>4</string>
+            </property>
+            <property name="wrapMode">
+              <string>0</string>
+            </property>
+            <property name="z">
+              <string>0</string>
+            </property>
+            <property name="bottomPadding">
+              <string>0</string>
+            </property>
+            <property name="text">
+              <string>56789</string>
+            </property>
+            <property name="activeFocusOnTab">
+              <string>false</string>
+            </property>
+            <property name="implicitWidth">
+              <string>57.1875</string>
+            </property>
+          </properties>
+          <identifyingProperties>
+            <property name="objectName"/>
+            <property name="id">
+              <string>operand</string>
+            </property>
+          </identifyingProperties>
+        </element>
+      </state>
+    </execution>
+  </ui>
+  <check type="identifying">
+    <PropertyVerification element-id="587d1669">
+      <VerifyProperty name="id" type="equal"/>
+    </PropertyVerification>
+  </check>
+  <check type="content">
+    <PropertyVerification element-id="587d1669">
+      <VerifyProperty name="enabled" type="equal"/>
+      <VerifyProperty name="text" type="equal"/>
+    </PropertyVerification>
+  </check>
+  <check type="geometry">
+    <PropertyVerification element-id="587d1669">
+      <VerifyProperty name="x" type="equal"/>
+      <VerifyProperty name="y" type="equal"/>
+      <VerifyProperty name="width" type="equal"/>
+      <VerifyProperty name="height" type="equal"/>
+    </PropertyVerification>
+  </check>
+  <check type="screenshot">
+    <PropertyVerification element-id="587d1669"/>
+  </check>
+</visual>
+</Verification>
+</VerificationPoint>
