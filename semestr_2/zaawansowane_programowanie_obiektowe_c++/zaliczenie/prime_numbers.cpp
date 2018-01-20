@@ -16,6 +16,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <array>
 #include <algorithm>
 
 bool trialDivision(unsigned long long n)
@@ -29,9 +30,14 @@ bool trialDivision(unsigned long long n)
     return true;
 }
 
-void thread(unsigned int begin, unsigned int end)
+bool millerRabin(unsigned long long n)
 {
-    std::cout << "I'm a new thread id = " << std::this_thread::get_id() << " Range: " << begin << " : " << end << std::endl;
+    
+}
+
+void thread(unsigned int algorithm, unsigned int begin, unsigned int end, std::vector<std::chrono::duration<double>>& ret)
+{
+    std::cout << "\tI'm a new thread id = " << std::this_thread::get_id() << " Range: " << begin << " : " << end << std::endl;
 
     std::ifstream file("prime_numbers.txt");
     file.clear();
@@ -51,7 +57,11 @@ void thread(unsigned int begin, unsigned int end)
                 clock_start = std::chrono::system_clock::now();
                 clock_started=true;
             }
-            trialDivision(std::stoll(s));
+            switch(algorithm)
+            {
+                case 0: trialDivision(std::stoll(s)); break;
+                case 1: millerRabin(std::stoll(s)); break;
+            }
             if(i==end)
             {
                 clock_end = std::chrono::system_clock::now();
@@ -59,8 +69,9 @@ void thread(unsigned int begin, unsigned int end)
         }
     }
     std::chrono::duration<double> elapsed_seconds = clock_end-clock_start;
+    ret.push_back(elapsed_seconds);
  
-    std::cout << "Thread id = " << std::this_thread::get_id() << " elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
+    std::cout << "\tThread id = " << std::this_thread::get_id() << " elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
 
     file.close();
 }
@@ -99,12 +110,15 @@ int main()
     }
     std::cout << "Job div: " << job_div << std::endl;
 
+    std::array<std::chrono::duration<double>, 3> algorithm;
 
-
+    for(unsigned int alg=0; alg<3; alg++)
     {
+        std::cout << "Testing algorithm: " << alg << std::endl;
         std::vector<std::thread> threads(nproc);
         unsigned int begin=0;
         unsigned int end=0;
+        std::vector<std::chrono::duration<double>> threads_time;
         for(unsigned int i=0; i<nproc; i++)
         {
             begin=i*job_div;
@@ -112,10 +126,23 @@ int main()
             end=(i+1)*job_div;
             if((i+1)==nproc) end=num_lines;
 
-            threads[i] = std::thread(thread,begin,end);
+            threads[i] = std::thread(thread, alg, begin, end, std::ref(threads_time));
         }
         std::for_each(threads.begin(),threads.end(),[](std::thread& x){x.join();});
+
+        std::chrono::duration<double> sum;
+        for(unsigned int i=0; i<nproc; i++)
+        {
+            sum+=threads_time[i];
+        }
+        algorithm[alg] = sum;
+        std::cout << "\t Sum a time: " << sum.count() << std::endl;
     }
+    for(unsigned int i=0; i<3; i++)
+    {
+        std::cout << "Algorithm " << i << " have a time: " << algorithm[i].count() << std::endl;
+    }
+    
 
     // std::thread first (thread,5,10);
     // std::cout << first.get_id() << std::endl;
