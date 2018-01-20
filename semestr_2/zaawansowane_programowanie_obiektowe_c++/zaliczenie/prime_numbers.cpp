@@ -14,24 +14,9 @@
 #include <fstream>
 #include <cmath>
 #include <chrono>
-#include <pthread.h>
-// #include <sstream>
-
-std::string getCmdOutput(const std::string& mStr)
-{
-    std::string result, file;
-    FILE* pipe{popen(mStr.c_str(), "r")};
-    char buffer[256];
-
-    while(fgets(buffer, sizeof(buffer), pipe) != NULL)
-    {
-        file = buffer;
-        result += file.substr(0, file.size() - 1);
-    }
-
-    pclose(pipe);
-    return result;
-}
+#include <thread>
+#include <vector>
+#include <algorithm>
 
 bool trialDivision(unsigned long long n)
 {
@@ -44,17 +29,9 @@ bool trialDivision(unsigned long long n)
     return true;
 }
 
-struct param
+void thread(unsigned int begin, unsigned int end)
 {
-    unsigned int begin=0;
-    unsigned int end=0;
-};
-
-void *thread_child(void *arg)
-{
-    param* p = (param*)arg;
-
-    std::cout << "I'm a new thread id = " << pthread_self() << " Range: " << p->begin << " : " << p->end << std::endl;
+    std::cout << "I'm a new thread id = " << std::this_thread::get_id() << " Range: " << begin << " : " << end << std::endl;
 
     std::ifstream file("prime_numbers.txt");
     file.clear();
@@ -67,17 +44,15 @@ void *thread_child(void *arg)
     while(std::getline(file, s))
     {
         ++i;
-        if(i>=p->begin && i<=p->end)
+        if(i>=begin && i<=end)
         {
             if(clock_started==false)
             {
                 clock_start = std::chrono::system_clock::now();
                 clock_started=true;
             }
-            // std::cout << s;
-            // std::cout << ":" << trialDivision(std::stoi(s)) << std::endl;
             trialDivision(std::stoll(s));
-            if(i==p->end)
+            if(i==end)
             {
                 clock_end = std::chrono::system_clock::now();
             }
@@ -85,15 +60,14 @@ void *thread_child(void *arg)
     }
     std::chrono::duration<double> elapsed_seconds = clock_end-clock_start;
  
-    std::cout << "Thread id = " << pthread_self() << " elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
+    std::cout << "Thread id = " << std::this_thread::get_id() << " elapsed time: " << elapsed_seconds.count() << "s" << std::endl;
 
     file.close();
-    pthread_exit(NULL);
 }
 
 int main()
 {
-    unsigned int nproc=std::stoi(getCmdOutput("nproc"));
+    unsigned int nproc=std::thread::hardware_concurrency(); // const size_t
     unsigned int job_div=0;
 
     std::cout << "Processors: " << nproc << std::endl;
@@ -125,30 +99,27 @@ int main()
     }
     std::cout << "Job div: " << job_div << std::endl;
 
-    pthread_t threads[nproc];
-    param p[nproc];
-    for(unsigned int i=0; i<nproc; i++)
-    {
-        p[i].begin=i*job_div;
-        if(p[i].begin>0) p[i].begin++;
-        p[i].end=(i+1)*job_div;
-        if((i+1)==nproc) p[i].end=num_lines;
 
-        if(pthread_create(&threads[i],NULL,thread_child,(void*)&p[i])==0)
+
+    {
+        std::vector<std::thread> threads(nproc);
+        unsigned int begin=0;
+        unsigned int end=0;
+        for(unsigned int i=0; i<nproc; i++)
         {
-            // std::cout << "Serwer: " << i << " ID = " << pthread_self() << " | new thread = " << threads[i] << std::endl;
+            begin=i*job_div;
+            if(begin>0) begin++;
+            end=(i+1)*job_div;
+            if((i+1)==nproc) end=num_lines;
+
+            threads[i] = std::thread(thread,begin,end);
         }
-        else
-        {
-            perror("I can't make a child threat");
-            exit(0);
-        }
+        std::for_each(threads.begin(),threads.end(),[](std::thread& x){x.join();});
     }
 
-    for(unsigned int i=0;i<nproc;i++)
-    {
-        pthread_join(threads[i],NULL);
-    }
+    // std::thread first (thread,5,10);
+    // std::cout << first.get_id() << std::endl;
+    // first.join();
 
     return 0;
 }
