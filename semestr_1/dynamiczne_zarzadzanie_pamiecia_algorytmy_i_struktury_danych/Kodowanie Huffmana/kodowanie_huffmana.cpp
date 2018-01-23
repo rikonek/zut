@@ -2,9 +2,9 @@
 #include <fstream>
 #include "huffman.class.h"
 
-int main()
+int main(int argc,char **argv)
 {
-    std::ifstream plik("kodowanie_huffmana_tekst.txt");
+    std::ifstream plik(argv[1]);
     if(!plik.is_open())
     {
         std::cout << "Nie mozna otworzyc pliku zrodlowego" << std::endl;
