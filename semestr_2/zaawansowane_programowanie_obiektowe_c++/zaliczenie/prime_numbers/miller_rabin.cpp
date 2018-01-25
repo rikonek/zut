@@ -1,3 +1,5 @@
+#include "miller_rabin.hpp"
+
 /* 
  * calculates (a * b) % c taking into account that a * b might overflow 
  */
