@@ -10,16 +10,6 @@
 //   b) Miller–Rabin
 //   c) mpz_probab_prime_p (https://gmplib.org/manual/Prime-Testing-Algorithm.html)
 
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <thread>
-#include <vector>
-#include <array>
-#include <algorithm>
-
-#include <gmp.h>
-
 #include "prime_numbers.hpp"
 #include "trial_division.hpp"
 #include "miller_rabin.hpp"

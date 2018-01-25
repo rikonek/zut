@@ -2,6 +2,14 @@
 #define _PRIME_NUMBERS_
 
 #include <iostream>
+#include <fstream>
+#include <chrono>
+#include <thread>
+#include <vector>
+#include <array>
+#include <algorithm>
+
+#include <gmp.h>
 
 unsigned int countLines(std::ifstream &file);
 unsigned int jobDiv(const int &nproc, const int &num_lines);
