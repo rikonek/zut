@@ -1,3 +1,4 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> // close
@@ -13,7 +14,7 @@
 #define BUFFER 1024
 
 char *cmdExec(char *cmd);
-char *cmdRemote(const char *command, const char *type);
+char *cmdRemote(const char *command, const char *type, int *r);
 void sigchld_handler(int s);
 
 int main(int argc, char *argv[])
@@ -167,21 +168,26 @@ int main(int argc, char *argv[])
 
                 while(1)
                 {
+                    ssize_t sent = 0;
+                    ssize_t received = 0;
+                    size_t buflen = 0;
                     memset(&buffer[0],0,sizeof(buffer)); // clear old buffer
                     buffresponse=NULL;
 
-                    if(-1==recv(client_fd, buffer, BUFFER, 0))
+                    received = recv(client_fd, buffer, BUFFER, 0);
+                    if(-1==received)
                     {
                         perror("Recv");
                         exit(1);
                     }
+                    fprintf(stderr, "%s:%d received %zd\n", __func__, __LINE__, received);
                     buffer[strcspn(buffer,"\r\n")]=0; // remove new line
 
                     printf("client# %s\n", buffer);    
 
                     buffresponse=cmdExec(buffer);
 
-                    printf("server# %s\n", buffresponse);
+                    printf("server# (%s)\n", buffresponse);
 
                     switch(buffer[0])
                     {
@@ -190,11 +196,19 @@ int main(int argc, char *argv[])
                             break;
                     }
 
-                    if(-1==send(client_fd, buffresponse, strlen(buffresponse), 0))
+                    buflen = strlen(buffresponse);
+                    if (0==buflen) {
+                        strcpy(buffresponse, "Invalid command output");
+                        buflen = strlen(buffresponse);
+                    }
+
+                    sent=send(client_fd, buffresponse, buflen, 0);
+                    if(-1==sent)
                     {
                         perror("Send response");
                         exit(1);
                     }
+
 
                     free(buffresponse);
 
@@ -239,9 +253,12 @@ char *cmdExec(char *cmd)
     char *out_ptr=NULL;
     char out[BUFFER]={0};
 
+    int buffsize = 0;
     int i=0;
     char *exp, *cmdarray[10];
     char *cmdtmp_ptr=NULL;
+
+    fprintf(stderr, "%s:%d entry %s\n", __func__,  __LINE__, cmd);
 
     if(0!=strlen(cmd))
     {
@@ -268,7 +285,7 @@ char *cmdExec(char *cmd)
                         {
                             case 2:
                                 memset(&out[0],0,sizeof(out));
-                                out_ptr=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r");
+                                out_ptr=cmdRemote("ls /sys/class/net | tr '\n' ' '", "r", 0);
                                 break;
 
                             case 4:
@@ -276,22 +293,22 @@ char *cmdExec(char *cmd)
                                 {
                                     case 'i': // ip
                                         memset(&out[0],0,sizeof(out));
-                                        asprintf(&cmdtmp_ptr, "ip addr show %s | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '", cmdarray[2]);
-                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        buffsize = asprintf(&cmdtmp_ptr, "ip addr show %s | grep inet | sed -r 's/.*inet6* //g' | sed -r 's/ .*//g' | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                         free(cmdtmp_ptr);
                                         break;
 
                                     case 'm': // mac
                                         memset(&out[0],0,sizeof(out));
-                                        asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/address | tr '\n' ' '", cmdarray[2]);
-                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        buffsize = asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/address | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                         free(cmdtmp_ptr);
                                         break;
 
                                     case 's': // status
                                         memset(&out[0],0,sizeof(out));
-                                        asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/operstate | tr '\n' ' '", cmdarray[2]);
-                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        buffsize = asprintf(&cmdtmp_ptr, "cat /sys/class/net/%s/operstate | tr '\n' ' '", cmdarray[2]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                         free(cmdtmp_ptr);
                                         break;
                                 }
@@ -311,8 +328,8 @@ char *cmdExec(char *cmd)
                                 switch(cmdarray[3][0])
                                 {
                                     case 'm': // mac
-                                        asprintf(&cmdtmp_ptr, "ifconfig %s hw ether %s", cmdarray[2], cmdarray[4]);
-                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                        buffsize = asprintf(&cmdtmp_ptr, "ifconfig %s hw ether %s", cmdarray[2], cmdarray[4]);
+                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                         free(cmdtmp_ptr);
                                         strcpy(out, "OK");
                                         break;
@@ -329,15 +346,15 @@ char *cmdExec(char *cmd)
                                                 switch(cmdarray[3][2])
                                                 {
                                                     case '4': // ip4
-                                                        asprintf(&cmdtmp_ptr, "ifconfig %s %s netmask %s", cmdarray[2], cmdarray[4], cmdarray[5]);
-                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                        buffsize = asprintf(&cmdtmp_ptr, "ifconfig %s %s netmask %s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                                         free(cmdtmp_ptr);
                                                         strcpy(out, "OK");
                                                         break;
 
                                                     case '6': // ip6
-                                                        asprintf(&cmdtmp_ptr, "ifconfig %s inet6 add %s/%s", cmdarray[2], cmdarray[4], cmdarray[5]);
-                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r");
+                                                        buffsize = asprintf(&cmdtmp_ptr, "ifconfig %s inet6 add %s/%s", cmdarray[2], cmdarray[4], cmdarray[5]);
+                                                        out_ptr=cmdRemote(cmdtmp_ptr, "r", 0);
                                                         free(cmdtmp_ptr);
                                                         strcpy(out, "OK");
                                                         break;
@@ -364,14 +381,18 @@ char *cmdExec(char *cmd)
         strcpy(out_ptr, out);
     }
 
+    fprintf(stderr, "%s:%d exit %s buffsize=%d\n", __func__,  __LINE__, out_ptr, buffsize);
     return out_ptr;
 }
 
-char *cmdRemote(const char *command, const char *type)
+char *cmdRemote(const char *command, const char *type, int *r)
 {
     FILE *cmd;
     char line[100];
     char *fullline=calloc(BUFFER, sizeof(char));
+    int read = 0;
+
+    fprintf(stderr, "%s:%d entry %s %s\n", __func__, __LINE__, command, type);
 
     cmd=popen(command, type);
     if(!cmd)
@@ -380,10 +401,15 @@ char *cmdRemote(const char *command, const char *type)
     }
     while(fgets(line,100,cmd))
     {
+        read += strlen(line);
         strcat(fullline, line);
     }
 
     pclose(cmd);
+    fprintf(stderr, "%s:%d exit %s read=%d\n", __func__, __LINE__, fullline, read);
+    if (r) {
+        *r = read;
+    }
     return fullline;
 }
 

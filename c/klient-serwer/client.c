@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         perror("Recv");
         exit(1);
     }
-    printf("server# %s\n", buffer);
+    printf("server# (%s)\n", buffer);
 
     if(strcmp(buffer, "Sorry, too many clients.")==0)
     {
@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
 
     while(1)
     {
+        ssize_t received = 0;
         printf("client# ");
         memset(&buffer[0],0,sizeof(buffer)); // clear old buffer
         fgets(buffer, BUFFER, stdin);
@@ -107,11 +108,13 @@ int main(int argc, char *argv[])
 
         // read response
         memset(&buffer[0],0,sizeof(buffer)); // clear old buffer
-        if(-1==recv(server_fd, buffer, BUFFER, 0))
+        received=recv(server_fd, buffer, BUFFER, 0);
+        if(-1==received)
         {
             perror("Recv");
             exit(1);
         }
+        fprintf(stderr, "%s:%d Received: %zd bytes\n", __func__, __LINE__, received);
         buffer[strcspn(buffer,"\r\n")]=0; // remove new line
         printf("server# %s\n", buffer);
 
